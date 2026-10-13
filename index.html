@@ -53,7 +53,7 @@ html
         // Функция создания сцены с указанной моделью
         function createScene(modelFile) {
             const scene = new BABYLON.Scene(engine);
-/*
+
             // Камера и свет
             const camera = new BABYLON.ArcRotateCamera(
                 "camera",
@@ -76,7 +76,7 @@ html
             const loadingDiv = document.getElementById("loading");
             loadingDiv.style.display = 'block';
             loadingDiv.textContent = "Загрузка модели...";
-*/
+
             // Загружаем модель
             BABYLON.SceneLoader.Append(BASE_URL, modelFile, scene, function () {
                 loadingDiv.style.display = 'none';
