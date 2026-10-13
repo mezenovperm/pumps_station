@@ -36,8 +36,8 @@ html
 
     <!-- Меню выбора модели -->
     <select id="modelMenu">
-        <option value="heat_station.gltf">Стандартная модель</option>
-        <option value="heat_station_modul.gltf">Модульная модель</option>
+        <option value="heat_station.gltf">Компновка оборудования</option>
+        <option value="heat_station_modul.gltf">Обшивка модуля</option>
     </select>
 
     <div id="loading">Загрузка модели...</div>
@@ -86,7 +86,7 @@ html
         }
 
         // Загружаем первую модель по умолчанию при старте
-        loadModel("heat_station.gltf");
+        loadModel("heat_station_modul.gltf");
 
         // Обработчик смены модели в меню
         document.getElementById("modelMenu").addEventListener("change", function(e) {
