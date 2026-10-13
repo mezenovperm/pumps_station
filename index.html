@@ -35,7 +35,7 @@ html
 <body>
     <div id="loading">Загрузка модели...</div>
     <select id="modelMenu">
-        <option value="heat_station.gltf">Насос (heat_station)</option>
+        <option value="heat_station.gltf">Оборудование (heat_station)</option>
         <option value="heat_station_modul.gltf">Модуль (heat_station_modul)</option>
     </select>
     <canvas id="canvas" style="width: 100%; height: 100%; display: block;"></canvas>
@@ -64,7 +64,7 @@ html
                 scene
             );
             camera.attachControl(canvas, true);
-*/
+
             const light = new BABYLON.HemisphericLight(
                 "light",
                 new BABYLON.Vector3(0, 1, 0),
@@ -76,7 +76,7 @@ html
             const loadingDiv = document.getElementById("loading");
             loadingDiv.style.display = 'block';
             loadingDiv.textContent = "Загрузка модели...";
-
+*/
             // Загружаем модель
             BABYLON.SceneLoader.Append(BASE_URL, modelFile, scene, function () {
                 loadingDiv.style.display = 'none';
