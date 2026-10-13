@@ -5,100 +5,105 @@ html
     <title>3D Модель Насоса</title>
     <style>
         body { margin: 0; padding: 0; overflow: hidden; }
-        #loading { 
-            position: absolute; 
-            bottom: 20px; 
-            left: 20px; 
-            color: white; 
-            background: rgba(0,0,0,0.7); 
-            padding: 5px 10px; 
-            border-radius: 5px; 
-            font-family: sans-serif; 
-            pointer-events: none; 
-            z-index: 100; 
+        #loading {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: white;
+            background: rgba(0,0,0,0.7);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-family: sans-serif;
+            pointer-events: none;
+            z-index: 100;
         }
-        /* Стили для меню выбора модели */
         #modelMenu {
             position: absolute;
             top: 20px;
             left: 20px;
             z-index: 100;
-            padding: 8px 12px;
-            font-size: 16px;
+            font-family: sans-serif;
+            padding: 6px 10px;
             border-radius: 5px;
-            border: 1px solid #ccc;
-            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            background: rgba(0,0,0,0.7);
+            color: white;
             cursor: pointer;
         }
     </style>
 </head>
 <body>
-
-    <!-- Меню выбора модели -->
-    <select id="modelMenu">
-        <option value="heat_station_modul.gltf">Обшивка модуля</option>
-        <option value="heat_station.gltf">Компоновка оборудования</option>
-    </select>
-
     <div id="loading">Загрузка модели...</div>
+    <select id="modelMenu">
+        <option value="heat_station.gltf">Насос (heat_station)</option>
+        <option value="heat_station_modul.gltf">Модуль (heat_station_modul)</option>
+    </select>
     <canvas id="canvas" style="width: 100%; height: 100%; display: block;"></canvas>
 
     <!-- Подключаем библиотеки Babylon.js и загрузчик glTF -->
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
     <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+
     <script>
-        // Получаем элемент canvas
         const canvas = document.getElementById("canvas");
-        // Создаем движок
         const engine = new BABYLON.Engine(canvas, true);
-        // Создаем сцену
-        const scene = new BABYLON.Scene(engine);
 
-        // --- 1. СОЗДАЕМ КАМЕРУ И СВЕТ ДО ЗАГРУЗКИ МОДЕЛИ ---
-        const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 3, 3, new BABYLON.Vector3(0, 0, 0), scene);
-        camera.attachControl(canvas, true); // Включаем управление мышью
+        const BASE_URL = "https://mezenovperm.github.io/pumps_station/";
 
-        const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
-        light.intensity = 0.7; // Немного приглушим
+        // Функция создания сцены с указанной моделью
+        function createScene(modelFile) {
+            const scene = new BABYLON.Scene(engine);
 
-        // --- 2. ФУНКЦИЯ ЗАГРУЗКИ МОДЕЛИ ---
-        function loadModel(modelName) {
+            // Камера и свет
+            const camera = new BABYLON.ArcRotateCamera(
+                "camera",
+                -Math.PI / 2,
+                Math.PI / 3,
+                3,
+                new BABYLON.Vector3(0, 0, 0),
+                scene
+            );
+            camera.attachControl(canvas, true);
+
+            const light = new BABYLON.HemisphericLight(
+                "light",
+                new BABYLON.Vector3(0, 1, 0),
+                scene
+            );
+            light.intensity = 0.7;
+
             // Показываем индикатор загрузки
             const loadingDiv = document.getElementById("loading");
-            if(loadingDiv) loadingDiv.style.display = 'block';
+            loadingDiv.style.display = 'block';
+            loadingDiv.textContent = "Загрузка модели...";
 
-            // Удаляем старые загруженные меши, чтобы модели не накладывались друг на друга
-            const meshesToRemove = scene.meshes.filter(m => m !== camera);
-            meshesToRemove.forEach(m => m.dispose());
-            
-            // Также очищаем связанные материалы, текстуры и анимации от старой модели
-            scene.materials.forEach(mat => mat.dispose());
-            scene.textures.forEach(tex => tex.dispose());
-            if (scene.animationGroups) {
-                scene.animationGroups.forEach(ag => ag.dispose());
-            }
-
-            // Загружаем выбранную модель
-            BABYLON.SceneLoader.Append("https://mezenovperm.github.io/pumps_station/", modelName, scene, function() {
-                if(loadingDiv) loadingDiv.style.display = 'none';
-                console.log("Модель " + modelName + " успешно загружена!");
+            // Загружаем модель
+            BABYLON.SceneLoader.Append(BASE_URL, modelFile, scene, function () {
+                loadingDiv.style.display = 'none';
+                console.log("Модель успешно загружена: " + modelFile);
             });
+
+            return scene;
         }
 
-        // Загружаем первую модель по умолчанию при старте
-        loadModel("heat_station_modul.gltf");
+        // Текущая сцена
+        let scene = createScene("heat_station.gltf");
 
-        // Обработчик смены модели в меню
-        document.getElementById("modelMenu").addEventListener("change", function(e) {
-            loadModel(e.target.value);
+        // Обработчик выбора модели в меню
+        document.getElementById("modelMenu").addEventListener("change", function (e) {
+            const newModel = e.target.value;
+            // Удаляем старую сцену
+            scene.dispose();
+            // Создаём новую
+            scene = createScene(newModel);
         });
 
-        // --- 3. ЗАПУСКАЕМ ЦИКЛ РЕНДЕРИНГА ---
+        // Цикл рендеринга
         engine.runRenderLoop(function () {
             scene.render();
         });
 
-        // --- 4. ПРАВИЛЬНО ОБРАБАТЫВАЕМ ИЗМЕНЕНИЕ РАЗМЕРА ОКНА ---
+        // Обработка изменения размера окна
         window.addEventListener("resize", function () {
             engine.resize();
         });
